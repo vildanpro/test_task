@@ -1,10 +1,8 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from storage_key_value import StorageTempFile
 
-
 storage = StorageTempFile()
-
 
 app = Flask(__name__)
 api = Api(app, prefix='/api/v1/storage/json')
@@ -31,7 +29,7 @@ class GetValue(Resource):
         return {key: value}
 
 
-api.add_resource(GetValue, '/read',  endpoint='getvalue')
+api.add_resource(GetValue, '/read', endpoint='getvalue')
 
 
 class SetValue(Resource):
@@ -42,9 +40,16 @@ class SetValue(Resource):
         storage.set_value(key, value)
         return f'Success add data {{{key}: {value}}}'
 
+    def post(self):
+        args = request.get_json()
+        print(args)
+        keys = args.keys()
+        for key in keys:
+            storage.set_value(key, args[key])
+        return f'Success add data {args}'
 
-api.add_resource(SetValue, '/write',  endpoint='setvalue')
 
+api.add_resource(SetValue, '/write', endpoint='setvalue')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
