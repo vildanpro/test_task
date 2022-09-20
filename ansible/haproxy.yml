@@ -1,0 +1,25 @@
+---
+- name: Install HAProxy
+  hosts: loadbalancers
+  become: true
+
+  tasks:
+  - name: Add epel-release repo
+    yum:
+      name: epel-release
+      state: present
+
+  - name: Install haproxy
+    yum:
+      name: haproxy
+      state: present
+
+  - name: "Copying configuration file"
+    template:
+      src: "haproxy.cfg"
+      dest: "/etc/haproxy/haproxy.cfg"
+
+  - name: Start HAProxy
+    service:
+      name: haproxy
+      state: started

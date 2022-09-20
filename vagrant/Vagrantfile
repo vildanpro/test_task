@@ -4,28 +4,49 @@
 # Every Vagrant development environment requires a box. You can search for
 # boxes at https://atlas.hashicorp.com/search.
 BOX_IMAGE = "centos/7"
-NODE_COUNT = 2
+NODE_COUNT = 4
 
 Vagrant.configure("2") do |config|
-
-  config.vm.network "public_network"
-  
+#  config.vm.network "private_network", type: "dhcp"
   config.vm.provider "virtualbox" do |vb|
     vb.gui = true
     vb.memory = "1024"
   end
 
-  config.vm.define "master" do |subconfig|
-    subconfig.vm.box = BOX_IMAGE
-    subconfig.vm.hostname = "master"
-    # subconfig.vm.network :private_network, ip: "10.0.0.10"
+  config.vm.provision 'ansible' do |ansible|
+    ansible.playbook = 'install_docker.yml'
+    ansible.become = true
   end
-  
+
   (1..NODE_COUNT).each do |i|
     config.vm.define "node#{i}" do |subconfig|
       subconfig.vm.box = BOX_IMAGE
       subconfig.vm.hostname = "node#{i}"
-      # subconfig.vm.network :private_network, ip: "10.0.0.#{i + 10}"
+      subconfig.vm.network :private_network, ip: "192.168.56.#{i + 10}"
     end
   end
+
+#  config.vm.define "ha1" do |subconfig|
+#    subconfig.vm.box = BOX_IMAGE
+#    subconfig.vm.hostname = "ha1"
+#    subconfig.vm.network :private_network, ip: "192.168.56.2"
+#  end
+  
+#  config.vm.define "ha2" do |subconfig|
+#    subconfig.vm.box = BOX_IMAGE
+#    subconfig.vm.hostname = "ha2"
+#    subconfig.vm.network :private_network, ip: "192.168.56.3"
+#  end
+
+#  config.vm.define "web1" do |subconfig|
+#    subconfig.vm.box = BOX_IMAGE
+#    subconfig.vm.hostname = "web1"
+#    subconfig.vm.network :private_network, ip: "192.168.56.4"
+#  end
+
+#  config.vm.define "web2" do |subconfig|
+#    subconfig.vm.box = BOX_IMAGE
+#    subconfig.vm.hostname = "web2"
+#    subconfig.vm.network :private_network, ip: "192.168.56.5"
+#  end
 end

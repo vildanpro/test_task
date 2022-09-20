@@ -1,0 +1,22 @@
+---
+- name: Add haproxy config
+  hosts: loadbalancers
+  become: true
+  vars:
+    haproxy_app_name: myapp
+    haproxy_mode: http
+    haproxy_enable_stats: enable
+    haproxy_algorithm: roundrobin
+    haproxy_backend_servers:
+      - {name: server1, ip: 192.168.56.11, port: 80, paramstring: cookie A check}
+      - {name: server2, ip: 192.168.56.12, port: 80, paramstring: cookie A check}
+    haproxy_stats_users:
+      - {username: vagrant, password: vagrant}
+
+  tasks:
+  - name: Update HAProxy config
+    template: src=haproxy.cfg
+              dest=/etc/haproxy/haproxy.cfg
+              backup=yes
+    notify:
+      - restart haproxy
